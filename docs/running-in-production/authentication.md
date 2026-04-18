@@ -22,7 +22,38 @@ Set `hasLocalAuth` to `true` in `config.json`:
 
 After restarting the server, a username and password form appears on `/pl/login` alongside any other configured providers.
 
+### Declaring accounts in `config.json`
+
+The simplest way to manage accounts is directly in `config.json` via `localAuthUsers`. The server upserts every entry on startup — adding new users, updating names, and resetting passwords — so the file is the single source of truth for who can log in.
+
+```json title="config.json"
+{
+  "devMode": false,
+  "hasLocalAuth": true,
+  "localAuthUsers": [
+    { "uid": "admin@example.com",      "name": "Admin",      "password": "CHANGE_ME", "admin": true },
+    { "uid": "instructor@example.com", "name": "Instructor", "password": "CHANGE_ME" },
+    { "uid": "student@example.com",    "name": "Student",    "password": "CHANGE_ME" }
+  ]
+}
+```
+
+Per-entry fields:
+
+| Field      | Required | Notes                                                                                      |
+| ---------- | -------- | ------------------------------------------------------------------------------------------ |
+| `uid`      | yes      | The value typed in the **Username** field.                                                 |
+| `name`     | yes      | Display name shown in the PrairieLearn UI.                                                 |
+| `password` | yes      | Plaintext; hashed with scrypt on provisioning and never read from the DB.                  |
+| `uin`      | no       | Institution-specific identifier. Useful if you also sync roster data elsewhere.            |
+| `email`    | no       | Defaults to `uid` when omitted.                                                            |
+| `admin`    | no       | When `true`, also inserts the user into the `administrators` table (site-wide admin).      |
+
+Because `config.json` contains plaintext passwords, protect it: `chmod 600 config.json`, keep it out of version control, and do not bake it into container images. If you'd rather manage accounts outside of config (e.g. add one occasionally from a shell script), use the [CLI](#manage-accounts-with-the-cli) instead — the two approaches coexist.
+
 ### Manage accounts with the CLI
+
+If `localAuthUsers` in `config.json` isn't a good fit for how you manage accounts — for instance, if you want to add single accounts on demand without restarting the server — a CLI is also available.
 
 The `local-auth` script lives in the `prairielearn` workspace and is invoked via Yarn:
 

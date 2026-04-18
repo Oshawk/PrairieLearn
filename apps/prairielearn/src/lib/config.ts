@@ -299,6 +299,24 @@ export const ConfigSchema = z.object({
   hasShib: z.boolean().default(false),
   hideShibLogin: z.boolean().default(false),
   hasLocalAuth: z.boolean().default(false),
+  /**
+   * Local-auth accounts to provision at server startup. Requires
+   * `hasLocalAuth: true`. Idempotent — each entry is upserted on every boot.
+   * Setting `admin: true` grants site-wide administrator status.
+   */
+  localAuthUsers: z
+    .array(
+      z.object({
+        uid: z.string().min(1),
+        name: z.string().min(1),
+        password: z.string().min(1),
+        uin: z.string().nullable().optional(),
+        email: z.string().nullable().optional(),
+        admin: z.boolean().optional(),
+      }),
+    )
+    .nullable()
+    .default(null),
   shibLinkText: z.string().default('Sign in with Illinois'),
   shibLinkLogo: z.string().default('/images/illinois_logo.svg'),
   shibLinkColors: z

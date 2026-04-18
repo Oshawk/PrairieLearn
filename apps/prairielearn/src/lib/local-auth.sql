@@ -57,6 +57,13 @@ WHERE
   uid = $uid
   AND deleted_at IS NULL;
 
+-- BLOCK grant_administrator
+INSERT INTO
+  administrators (user_id)
+VALUES
+  ($user_id)
+ON CONFLICT DO NOTHING;
+
 -- BLOCK list_credentials
 SELECT
   u.id AS user_id,

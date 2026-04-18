@@ -173,3 +173,27 @@ export async function upsertLocalUser({
   );
   return row.user_id;
 }
+
+export interface LocalAuthUserSpec {
+  uid: string;
+  name: string;
+  password: string;
+  uin?: string | null;
+  email?: string | null;
+  admin?: boolean;
+}
+
+export async function provisionLocalAuthUsers(specs: LocalAuthUserSpec[]): Promise<void> {
+  for (const spec of specs) {
+    const user_id = await upsertLocalUser({
+      uid: spec.uid,
+      name: spec.name,
+      uin: spec.uin ?? null,
+      email: spec.email ?? spec.uid,
+    });
+    await setLocalCredentials({ user_id, password: spec.password });
+    if (spec.admin) {
+      await sqldb.execute(sql.grant_administrator, { user_id });
+    }
+  }
+}

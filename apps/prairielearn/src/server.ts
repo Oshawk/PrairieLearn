@@ -2444,6 +2444,12 @@ if (shouldStartServer) {
       process.exit(0);
     }
 
+    if (config.hasLocalAuth && config.localAuthUsers && config.localAuthUsers.length > 0) {
+      logger.info(`Provisioning ${config.localAuthUsers.length} local-auth user(s) from config`);
+      const { provisionLocalAuthUsers } = await import('./lib/local-auth.js');
+      await provisionLocalAuthUsers(config.localAuthUsers);
+    }
+
     // Collect metrics on our Postgres connection pools.
     const meter = opentelemetry.metrics.getMeter('prairielearn');
 
