@@ -8,6 +8,7 @@ import { loadSqlEquiv, queryRows } from '@prairielearn/postgres';
 import * as authLib from '../../lib/authn.js';
 import { config } from '../../lib/config.js';
 import { AuthnProviderSchema } from '../../lib/db-types.js';
+import { verifyLocalCredentials } from '../../lib/local-auth.js';
 
 import {
   AuthLogin,
@@ -96,7 +97,14 @@ router.get(
       })
       .filter((provider): provider is InstitutionAuthnProvider => provider !== null);
 
-    res.send(AuthLogin({ service, institutionAuthnProviders, resLocals: res.locals }));
+    res.send(
+      AuthLogin({
+        service,
+        institutionAuthnProviders,
+        localLoginError: req.query.local_error === '1',
+        resLocals: res.locals,
+      }),
+    );
   }),
 );
 
@@ -107,14 +115,19 @@ const DevLoginParamsSchema = z.object({
   email: z.string().nullable().optional().default(null),
 });
 
+const LocalLoginParamsSchema = z.object({
+  uid: z.string().min(1),
+  password: z.string().min(1),
+});
+
 router.post(
   '/',
   asyncHandler(async (req, res, _next) => {
-    if (!config.devMode) {
-      throw new error.HttpStatusError(404, 'Not Found');
-    }
-
     if (req.body.__action === 'dev_login') {
+      if (!config.devMode) {
+        throw new error.HttpStatusError(404, 'Not Found');
+      }
+
       const body = DevLoginParamsSchema.parse(req.body);
 
       const authnParams = {
@@ -128,6 +141,38 @@ router.post(
       await authLib.loadUser(req, res, authnParams, {
         redirect: true,
       });
+    } else if (req.body.__action === 'local_login') {
+      if (!config.hasLocalAuth) {
+        throw new error.HttpStatusError(404, 'Not Found');
+      }
+
+      const parsed = LocalLoginParamsSchema.safeParse(req.body);
+      if (!parsed.success) {
+        res.redirect('/pl/login?local_error=1');
+        return;
+      }
+
+      const verified = await verifyLocalCredentials({
+        uid: parsed.data.uid,
+        password: parsed.data.password,
+      });
+      if (!verified) {
+        res.redirect('/pl/login?local_error=1');
+        return;
+      }
+
+      await authLib.loadUser(
+        req,
+        res,
+        {
+          uid: verified.uid,
+          name: verified.name,
+          uin: null,
+          email: verified.uid,
+          provider: 'Local',
+        },
+        { redirect: true },
+      );
     } else {
       throw new error.HttpStatusError(400, `Unknown action: ${req.body.__action}`);
     }

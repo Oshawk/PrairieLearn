@@ -668,7 +668,7 @@ export type AuditLog = z.infer<typeof AuditLogSchema>;
 
 export const AuthnProviderSchema = z.object({
   id: IdSchema,
-  name: z.enum(['Shibboleth', 'Google', 'Azure', 'LTI', 'SAML', 'LTI 1.3']).nullable(),
+  name: z.enum(['Shibboleth', 'Google', 'Azure', 'LTI', 'SAML', 'LTI 1.3', 'Local']).nullable(),
 });
 export type AuthnProvider = z.infer<typeof AuthnProviderSchema>;
 
@@ -1225,6 +1225,13 @@ export const JobSequenceSchema = z.object({
 export type JobSequence = z.infer<typeof JobSequenceSchema>;
 
 export const LastAccessSchema = null;
+
+export const LocalAuthCredentialsSchema = z.object({
+  password_hash: z.string(),
+  updated_at: DateFromISOString,
+  user_id: IdSchema,
+});
+export type LocalAuthCredentials = z.infer<typeof LocalAuthCredentialsSchema>;
 
 export const Lti13AssessmentSchema = z.object({
   assessment_id: IdSchema,
@@ -1802,6 +1809,7 @@ export const TableNames = [
   'job_sequences',
   'jobs',
   'last_accesses',
+  'local_auth_credentials',
   'lti13_assessments',
   'lti13_course_instances',
   'lti13_instances',

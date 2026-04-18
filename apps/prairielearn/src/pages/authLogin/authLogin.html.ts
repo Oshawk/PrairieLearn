@@ -200,10 +200,12 @@ function SamlLoginButton({ institutionId }: { institutionId: string }) {
 export function AuthLogin({
   institutionAuthnProviders,
   service,
+  localLoginError,
   resLocals,
 }: {
   institutionAuthnProviders: InstitutionAuthnProvider[] | null;
   service: string | null;
+  localLoginError?: boolean;
   resLocals: UntypedResLocals;
 }) {
   return LoginPageContainer({
@@ -215,6 +217,19 @@ export function AuthLogin({
             ${DevModeBypass()}
             <hr />
             ${DevModeLogin({ csrfToken: resLocals.__csrf_token })}
+            <hr />
+          `
+        : ''}
+      ${config.hasLocalAuth
+        ? html`
+            ${localLoginError
+              ? html`
+                  <div class="alert alert-danger" role="alert">
+                    Invalid username or password.
+                  </div>
+                `
+              : ''}
+            ${LocalLoginForm({ csrfToken: resLocals.__csrf_token })}
             <hr />
           `
         : ''}
@@ -383,6 +398,44 @@ function DevModeBypass() {
       <span class="fw-bold">Dev Mode Bypass</span>
     </a>
     <small class="text-muted">You will be authenticated as <code>${config.authUid}</code>.</small>
+  `;
+}
+
+function LocalLoginForm({ csrfToken }: { csrfToken: string }) {
+  return html`
+    <form method="POST">
+      <div class="mb-3">
+        <label class="form-label" for="local_uid">Username</label>
+        <input
+          type="text"
+          class="form-control"
+          id="local_uid"
+          name="uid"
+          autocomplete="username"
+          required
+        />
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="local_password">Password</label>
+        <input
+          type="password"
+          class="form-control"
+          id="local_password"
+          name="password"
+          autocomplete="current-password"
+          required
+        />
+      </div>
+      <input type="hidden" name="__csrf_token" value="${csrfToken}" />
+      <button
+        type="submit"
+        class="btn btn-primary d-block w-100"
+        name="__action"
+        value="local_login"
+      >
+        <span class="fw-bold">Sign in</span>
+      </button>
+    </form>
   `;
 }
 

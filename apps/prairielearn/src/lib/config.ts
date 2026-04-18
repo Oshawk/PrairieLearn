@@ -298,6 +298,7 @@ export const ConfigSchema = z.object({
   awsServiceGlobalOptions: z.record(z.unknown()).default({}),
   hasShib: z.boolean().default(false),
   hideShibLogin: z.boolean().default(false),
+  hasLocalAuth: z.boolean().default(false),
   shibLinkText: z.string().default('Sign in with Illinois'),
   shibLinkLogo: z.string().default('/images/illinois_logo.svg'),
   shibLinkColors: z
