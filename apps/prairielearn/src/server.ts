@@ -2450,6 +2450,11 @@ if (shouldStartServer) {
       await provisionLocalAuthUsers(config.localAuthUsers);
     }
 
+    if (config.syncCoursesFromDisk) {
+      const { syncCoursesFromDisk } = await import('./lib/sync-courses-from-disk.js');
+      await syncCoursesFromDisk();
+    }
+
     // Collect metrics on our Postgres connection pools.
     const meter = opentelemetry.metrics.getMeter('prairielearn');
 

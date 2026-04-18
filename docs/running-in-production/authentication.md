@@ -51,6 +51,21 @@ Per-entry fields:
 
 Because `config.json` contains plaintext passwords, protect it: `chmod 600 config.json`, keep it out of version control, and do not bake it into container images. If you'd rather manage accounts outside of config (e.g. add one occasionally from a shell script), use the [CLI](#manage-accounts-with-the-cli) instead — the two approaches coexist.
 
+### Syncing a course from disk at startup
+
+Turning `devMode` off also removes the `/pl/loadFromDisk` button that normally imports a mounted course into the database. For self-hosted setups with `devMode: false`, add `syncCoursesFromDisk: true` so the server imports every directory in `courseDirs` that contains an `infoCourse.json` on every boot:
+
+```json title="config.json"
+{
+  "devMode": false,
+  "hasLocalAuth": true,
+  "syncCoursesFromDisk": true,
+  "localAuthUsers": [ ... ]
+}
+```
+
+With the default `courseDirs`, mounting your course repo at `/course` inside the container is all you need. Sync errors (malformed JSON, missing files) fail-fast at startup so you notice immediately rather than discovering broken questions during a class.
+
 ### Manage accounts with the CLI
 
 If `localAuthUsers` in `config.json` isn't a good fit for how you manage accounts — for instance, if you want to add single accounts on demand without restarting the server — a CLI is also available.

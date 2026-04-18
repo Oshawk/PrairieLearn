@@ -308,8 +308,9 @@ export async function syncOrCreateDiskToSql(
   courseDir: string,
   logger: ServerJobLogger,
 ): Promise<SyncResults> {
-  // This should only ever be used in dev mode or tests.
-  assert(config.devMode || process.env.NODE_ENV === 'test');
+  // This should only ever be used in dev mode, tests, or when opted-in
+  // via `syncCoursesFromDisk` for self-hosted deployments.
+  assert(config.devMode || config.syncCoursesFromDisk || process.env.NODE_ENV === 'test');
 
   // This intentionally only updates the branch/repository when a course is
   // created, not when it already exists. There's no particularly good reason

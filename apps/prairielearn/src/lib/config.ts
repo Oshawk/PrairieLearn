@@ -300,6 +300,12 @@ export const ConfigSchema = z.object({
   hideShibLogin: z.boolean().default(false),
   hasLocalAuth: z.boolean().default(false),
   /**
+   * When `true`, at server startup every directory in `courseDirs` that contains
+   * an `infoCourse.json` file is synced into the database. Idempotent. Intended
+   * for self-hosted deployments where the course lives in a mounted directory.
+   */
+  syncCoursesFromDisk: z.boolean().default(false),
+  /**
    * Local-auth accounts to provision at server startup. Requires
    * `hasLocalAuth: true`. Idempotent — each entry is upserted on every boot.
    * Setting `admin: true` grants site-wide administrator status.
