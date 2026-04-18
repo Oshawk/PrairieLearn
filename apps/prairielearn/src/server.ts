@@ -2444,15 +2444,15 @@ if (shouldStartServer) {
       process.exit(0);
     }
 
+    if (config.syncCoursesFromDisk) {
+      const { syncCoursesFromDisk } = await import('./lib/sync-courses-from-disk.js');
+      await syncCoursesFromDisk();
+    }
+
     if (config.hasLocalAuth && config.localAuthUsers && config.localAuthUsers.length > 0) {
       logger.info(`Provisioning ${config.localAuthUsers.length} local-auth user(s) from config`);
       const { provisionLocalAuthUsers } = await import('./lib/local-auth.js');
       await provisionLocalAuthUsers(config.localAuthUsers);
-    }
-
-    if (config.syncCoursesFromDisk) {
-      const { syncCoursesFromDisk } = await import('./lib/sync-courses-from-disk.js');
-      await syncCoursesFromDisk();
     }
 
     // Collect metrics on our Postgres connection pools.

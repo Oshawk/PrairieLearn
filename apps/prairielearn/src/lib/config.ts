@@ -309,6 +309,10 @@ export const ConfigSchema = z.object({
    * Local-auth accounts to provision at server startup. Requires
    * `hasLocalAuth: true`. Idempotent — each entry is upserted on every boot.
    * Setting `admin: true` grants site-wide administrator status.
+   * Setting `enroll: true` enrolls the user (status='joined') in every
+   * course instance known to the database. Intended to pair with
+   * `syncCoursesFromDisk: true` so students see the course on login
+   * without having to visit the enrollment URL first.
    */
   localAuthUsers: z
     .array(
@@ -319,6 +323,7 @@ export const ConfigSchema = z.object({
         uin: z.string().nullable().optional(),
         email: z.string().nullable().optional(),
         admin: z.boolean().optional(),
+        enroll: z.boolean().optional(),
       }),
     )
     .nullable()

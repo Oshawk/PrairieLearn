@@ -64,6 +64,24 @@ VALUES
   ($user_id)
 ON CONFLICT DO NOTHING;
 
+-- BLOCK enroll_in_all_course_instances
+INSERT INTO
+  enrollments (user_id, course_instance_id, status, first_joined_at)
+SELECT
+  $user_id,
+  ci.id,
+  'joined',
+  CURRENT_TIMESTAMP
+FROM
+  course_instances AS ci
+  LEFT JOIN enrollments AS e ON (
+    e.user_id = $user_id
+    AND e.course_instance_id = ci.id
+  )
+WHERE
+  ci.deleted_at IS NULL
+  AND e.id IS NULL;
+
 -- BLOCK list_credentials
 SELECT
   u.id AS user_id,

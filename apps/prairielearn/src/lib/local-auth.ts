@@ -181,6 +181,7 @@ export interface LocalAuthUserSpec {
   uin?: string | null;
   email?: string | null;
   admin?: boolean;
+  enroll?: boolean;
 }
 
 export async function provisionLocalAuthUsers(specs: LocalAuthUserSpec[]): Promise<void> {
@@ -194,6 +195,9 @@ export async function provisionLocalAuthUsers(specs: LocalAuthUserSpec[]): Promi
     await setLocalCredentials({ user_id, password: spec.password });
     if (spec.admin) {
       await sqldb.execute(sql.grant_administrator, { user_id });
+    }
+    if (spec.enroll) {
+      await sqldb.execute(sql.enroll_in_all_course_instances, { user_id });
     }
   }
 }

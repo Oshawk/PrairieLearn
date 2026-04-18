@@ -48,6 +48,7 @@ Per-entry fields:
 | `uin`      | no       | Institution-specific identifier. Useful if you also sync roster data elsewhere.            |
 | `email`    | no       | Defaults to `uid` when omitted.                                                            |
 | `admin`    | no       | When `true`, also inserts the user into the `administrators` table (site-wide admin).      |
+| `enroll`   | no       | When `true`, enrolls the user (`status='joined'`) in every course instance known to the database. Pair with `syncCoursesFromDisk: true` so students land on their course immediately after logging in, without needing to visit an enrollment URL. Has no effect on users already enrolled, invited, or blocked. |
 
 Because `config.json` contains plaintext passwords, protect it: `chmod 600 config.json`, keep it out of version control, and do not bake it into container images. If you'd rather manage accounts outside of config (e.g. add one occasionally from a shell script), use the [CLI](#manage-accounts-with-the-cli) instead — the two approaches coexist.
 
